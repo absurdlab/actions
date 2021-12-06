@@ -1,0 +1,34 @@
+on:
+  workflow_call:
+    inputs:
+      go_version:
+        required: false
+        type: string
+        default: "^1.16"
+      tags:
+        required: false
+        type: string
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ inputs.go_version }}
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
+          restore-keys: ${{ runner.os }}-go-
+      - name: Fetch dependencies
+        run: go mod download
+      - name: Run tests
+        run: |
+          if [ "${{ inputs.tags }}" != "" ]; then
+            go test -tags ${{ inputs.tags }} -v ./...
+          else
+            go test -v ./...
+          fi
