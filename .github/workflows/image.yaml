@@ -20,6 +20,10 @@ on:
           type=semver,pattern={{version}}
           type=ref,event=pr
           type=ref,event=branch
+      build_args:
+        type: string
+        description: List of build-time variables
+        required: false
       platforms:
         type: string
         description: List of target platforms to build images for
@@ -71,6 +75,7 @@ jobs:
           context: ${{ inputs.context }}
           platforms: ${{ inputs.platforms }}
           builder: ${{ steps.buildx.outputs.name }}
+          build-args: ${{ inputs.build_args }}
           push: ${{ inputs.push }}
           tags: ${{ steps.tagging.outputs.tags }}
           cache-from: type=gha
