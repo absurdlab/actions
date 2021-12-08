@@ -8,6 +8,10 @@ on:
       tags:
         required: false
         type: string
+      base_dir:
+        required: false
+        type: string
+        default: "."
 
 jobs:
   test:
@@ -23,14 +27,16 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: ${{ runner.os }}-go-
       - name: Fetch dependencies
-        run: go mod download
+        run: |
+          cd ${{ inputs.base_dir }}
+          go mod download
       - name: Run tests
         run: |
           if [ "${{ inputs.tags }}" != "" ]; then
-            go test -tags ${{ inputs.tags }} -v ./...
+            go test -tags ${{ inputs.tags }} -v ${{ inputs.base_dir }}/...
           else
-            go test -v ./...
+            go test -v ${{ inputs.base_dir }}/...
           fi
